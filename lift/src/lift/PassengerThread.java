@@ -13,9 +13,8 @@ public class PassengerThread extends Thread {
 
     public void run() {
         pass.begin();
+        monitor.addToEnterExit(pass);
         try {
-            monitor.floorAppend(pass.getStartFloor());
-            monitor.floorAppend(pass.getDestinationFloor());
             monitor.loadPassenger(pass);
             monitor.exitPassenger(pass);
         } catch (InterruptedException e) {

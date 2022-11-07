@@ -1,16 +1,19 @@
 public class AlarmThread extends Thread {
-    AlarmMonitor aMonitor;
-    CounterMonitor cMonitor;
+    CounterMonitor monitor;
 
-    public AlarmThread(AlarmMonitor aMonitor, CounterMonitor cMonitor) {
-        this.aMonitor = aMonitor;
-        this.cMonitor = cMonitor;
+    public AlarmThread(CounterMonitor monitor) {
+        this.monitor = monitor;
     }
 
     public void run() {
         while(true) {
-            if(cMonitor.currentTime() == aMonitor.getTime()) {
-                aMonitor.alarm();   
+            try {
+                if(monitor.currentTime() == monitor.getAlarmTime()) {
+                    monitor.alarm();   
+                }
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
         }
     }
