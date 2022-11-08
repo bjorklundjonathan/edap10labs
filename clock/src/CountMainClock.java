@@ -19,7 +19,12 @@ public class CountMainClock extends Thread {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            monitor.increment();
+            try {
+                monitor.increment();
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
     }
     

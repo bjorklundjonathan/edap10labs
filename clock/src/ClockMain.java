@@ -3,7 +3,6 @@ import java.util.concurrent.Semaphore;
 import clock.AlarmClockEmulator;
 import clock.io.ClockInput;
 import clock.io.ClockInput.UserInput;
-import clock.io.ClockOutput;
 
 public class ClockMain {
 
@@ -11,8 +10,7 @@ public class ClockMain {
         AlarmClockEmulator emulator = new AlarmClockEmulator();
         CounterMonitor mainMonitor = new CounterMonitor(emulator.getOutput());
         CountMainClock clock = new CountMainClock(mainMonitor);
-        AlarmMonitor alarmMonitor = new AlarmMonitor(emulator.getOutput());
-        AlarmThread alarm = new AlarmThread(alarmMonitor, mainMonitor);
+        AlarmThread alarm = new AlarmThread(mainMonitor);
 
         clock.start();
         alarm.start();
@@ -20,8 +18,6 @@ public class ClockMain {
 
         ClockInput  in  = emulator.getInput();
         Semaphore mutex = new Semaphore(1);
-
-        System.out.println("testtest");
 
         while (true) {
             System.out.println(in.getSemaphore().availablePermits());
@@ -33,18 +29,15 @@ public class ClockMain {
             int m = userInput.getMinutes();
             int s = userInput.getSeconds();
 
-            System.out.println("hasllooeoadawed");
-
             switch (choice) {
                 case ClockInput.CHOICE_SET_TIME:
-                    System.out.println("i case");
                     mainMonitor.setTime(h, m, s);
                     break;
                 case ClockInput.CHOICE_SET_ALARM:
-                    alarmMonitor.setTime(h, m, s);
+                    mainMonitor.setAlarmTime(h, m, s);
                     break;
                 case ClockInput.CHOICE_TOGGLE_ALARM:
-                    alarmMonitor.toggleAlarm();
+                    mainMonitor.toggleAlarm();
                     break;
             }
 
