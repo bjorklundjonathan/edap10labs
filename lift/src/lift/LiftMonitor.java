@@ -1,23 +1,17 @@
 package lift;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JToggleButton.ToggleButtonModel;
-import javax.swing.text.html.InlineView;
-
 public class LiftMonitor {
     
     LiftView view;
     int currentFloor = 0;
-    int currentPass = 0;
     int inLift = 0;
-    boolean moving = false;
-    boolean goingUp = true;
+    int entering = 0;
     boolean doorsOpen = false;
     List<Passenger> passengersMoving = new LinkedList<>();
     LinkedList<Integer> floorQueue = new LinkedList<>();
@@ -74,11 +68,11 @@ public class LiftMonitor {
     }
 
     public synchronized void waitForPassengers(int floor) throws InterruptedException {
-        while((toEnter[floor] > 0 && inLift < 4) || toExit[floor] > 0) {
-            System.out.println("waiting for pass");
+        while((toEnter[floor] > 0 && inLift < 4) || toExit[floor] > 0 || entering > 0) {
+            //System.out.println("waiting for pass");
             wait();
         }
-        System.out.println("done waiting");
+        //System.out.println("done waiting");
     }
 
     public synchronized void updateDoors(boolean bool) {
@@ -91,15 +85,19 @@ public class LiftMonitor {
         notifyAll();
     }
 
-    public synchronized void loadPassenger(Passenger passenger) throws InterruptedException {
+    public synchronized void blockLoad(Passenger passenger) throws InterruptedException {
         while(!(doorsOpen && passenger.getStartFloor() == currentFloor && inLift < 4)) {
             wait();
         }
-        System.out.println(doorsOpen + " " + passenger.getStartFloor() + " " + currentFloor);
-        passenger.enterLift();
+        inLift++;
+        entering++;
+        //System.out.println(doorsOpen + " " + passenger.getStartFloor() + " " + currentFloor);
+    }
+
+    public synchronized void loadPassenger(Passenger passenger) throws InterruptedException {
         toEnter[passenger.getStartFloor()]--;
         toExit[passenger.getDestinationFloor()]++;
-        inLift++;
+        entering--;
         notifyAll();
     }
 
@@ -110,14 +108,16 @@ public class LiftMonitor {
     }
 
     public synchronized boolean open(int floor) {
-        return toEnter[floor] > 0 || toExit[floor] > 0;
+        return (toEnter[floor] > 0 && inLift < 4) || toExit[floor] > 0;
     }
 
-    public synchronized void exitPassenger(Passenger passenger) throws InterruptedException {
+    public synchronized void blockExit(Passenger passenger) throws InterruptedException {
         while(!(doorsOpen && passenger.getDestinationFloor() == currentFloor)) {
             wait();
         }
-        passenger.exitLift();
+    }
+
+    public synchronized void exitPassenger(Passenger passenger) throws InterruptedException {
         inLift--;
         toExit[passenger.getDestinationFloor()]--;
         notifyAll();

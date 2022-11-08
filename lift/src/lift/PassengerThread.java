@@ -15,7 +15,11 @@ public class PassengerThread extends Thread {
         pass.begin();
         monitor.addToEnterExit(pass);
         try {
+            monitor.blockLoad(pass);
+            pass.enterLift();
             monitor.loadPassenger(pass);
+            monitor.blockExit(pass);
+            pass.exitLift();
             monitor.exitPassenger(pass);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
