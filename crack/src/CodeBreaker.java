@@ -32,7 +32,7 @@ public class CodeBreaker implements SnifferCallback {
         workList        = w.getWorkList();
         progressList    = w.getProgressList();
         mainProgressBar = w.getProgressBar();
-        w.enableErrorChecks();
+        //w.enableErrorChecks();
 
     }
     
@@ -58,15 +58,17 @@ public class CodeBreaker implements SnifferCallback {
     /** Called by a Sniffer thread when an encrypted message is obtained. */
     @Override
     public void onMessageIntercepted(String message, BigInteger n) {
-        WorklistItem wrkItem = new WorklistItem(n, message);
-        JButton breakButton = new JButton("Break");
-        JButton cancelButton = new JButton("Cancel");
+
+
         ExecutorService threadPool = Executors.newFixedThreadPool(12);
         
-        ProgressItem pgItem = new ProgressItem(n, message);
-        Runnable task = makeTask(message, n, threadPool, pgItem, cancelButton);
 
         SwingUtilities.invokeLater(() -> {
+            ProgressItem pgItem = new ProgressItem(n, message);
+            JButton breakButton = new JButton("Break");
+            JButton cancelButton = new JButton("Cancel");
+            WorklistItem wrkItem = new WorklistItem(n, message);
+            Runnable task = makeTask(message, n, threadPool, pgItem, cancelButton);
             wrkItem.add(breakButton);
             workList.add(wrkItem);
             mainProgressBar.setMaximum(mainProgressBar.getMaximum() + 1000000);
@@ -92,15 +94,16 @@ public class CodeBreaker implements SnifferCallback {
     }
 
     private Runnable makeTask(String message, BigInteger n, ExecutorService threadPool, ProgressItem pgItem, JButton cancelButton) {
+        
         JProgressBar bar = pgItem.getProgressBar();
         JTextArea text = pgItem.getTextArea();
         Tracker tracker = new Tracker(bar, mainProgressBar);
         Runnable task = () -> {
             try {
                 String cracked = Factorizer.crack(message, n, tracker);
-                text.setText(cracked);
                 JButton remove = new JButton("Remove");
                 SwingUtilities.invokeLater(() -> {
+                    text.setText(cracked);
                     remove.addActionListener(e -> {
                         progressList.remove(pgItem);
                     });
