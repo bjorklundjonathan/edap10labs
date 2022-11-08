@@ -32,7 +32,7 @@ public class CodeBreaker implements SnifferCallback {
         workList        = w.getWorkList();
         progressList    = w.getProgressList();
         mainProgressBar = w.getProgressBar();
-        //w.enableErrorChecks();
+        w.enableErrorChecks();
 
     }
     
@@ -61,7 +61,7 @@ public class CodeBreaker implements SnifferCallback {
         WorklistItem wrkItem = new WorklistItem(n, message);
         JButton breakButton = new JButton("Break");
         JButton cancelButton = new JButton("Cancel");
-        ExecutorService threadPool = Executors.newFixedThreadPool(2);
+        ExecutorService threadPool = Executors.newFixedThreadPool(12);
         
         ProgressItem pgItem = new ProgressItem(n, message);
         Runnable task = makeTask(message, n, threadPool, pgItem, cancelButton);
